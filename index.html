@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrugSafe | Drug Interaction Analysis</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --primary-dark: #2563eb;
+            --secondary: #ff006e;
+            --accent: #8338ec;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #38b000;
+            --warning: #ffbe0b;
+            --danger: #ff006e;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-800: #343a40;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                transparent,
+                transparent 20px,
+                rgba(255, 255, 255, 0.05) 20px,
+                rgba(255, 255, 255, 0.05) 40px
+            );
+            transform: rotate(30deg);
+            z-index: 0;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+            margin-right: 0.5rem;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+        
+        .main-content {
+            display: flex;
+            margin: 2rem 0;
+            gap: 2rem;
+        }
+        
+        .sidebar {
+            flex: 0 0 250px;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .sidebar h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .sidebar h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .nav-btn {
+            display: block;
+            width: 100%;
+            background-color: white;
+            border: 1px solid var(--gray-300);
+            color: var(--dark);
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .nav-btn i {
+            margin-right: 10px;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: var(--primary);
+            transition: all 0.3s ease;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .nav-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:hover::before {
+            width: 100%;
+        }
+        
+        .nav-btn:hover i {
+            transform: scale(1.2);
+        }
+        
+        .nav-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(58, 134, 255, 0.3);
+        }
+        
+        .nav-btn.active i {
+            color: white;
+        }
+        
+        .content-area {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .content-header {
+            margin-bottom: 2rem;
+        }
+        
+        .content-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-header p {
+            color: var(--gray-800);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(58, 134, 255, 0.3);
+        }
+        
+        .btn i {
+            font-size: 1.1rem;
+        }
+        
+        .messages {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .messages .success {
+            background-color: rgba(56, 176, 0, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            color: var(--success);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1rem;
+        }
+        
+        .messages .warning {
+            background-color: rgba(255, 190, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            color: #9a6700;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1rem;
+        }
+        
+        .messages .error {
+            background-color: rgba(255, 0, 110, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 1rem;
+            color: var(--danger);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .molecule-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .molecule {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .atom {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        .atom:nth-child(1) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--accent);
+            width: 30px;
+            height: 30px;
+        }
+        
+        .atom:nth-child(2) {
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0.2s;
+        }
+        
+        .atom:nth-child(3) {
+            top: 50%;
+            left: 20%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0.4s;
+        }
+        
+        .atom:nth-child(4) {
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0.6s;
+        }
+        
+        .atom:nth-child(5) {
+            top: 50%;
+            left: 80%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0.8s;
+        }
+        
+        .bond {
+            position: absolute;
+            background: var(--gray-300);
+            width: 5px;
+            height: 40px;
+            top: 50%;
+            left: 50%;
+            transform-origin: top center;
+        }
+        
+        .bond:nth-child(6) {
+            transform: translate(-50%, 0) rotate(0deg);
+        }
+        
+        .bond:nth-child(7) {
+            transform: translate(-50%, 0) rotate(90deg);
+        }
+        
+        .bond:nth-child(8) {
+            transform: translate(-50%, 0) rotate(45deg);
+        }
+        
+        .bond:nth-child(9) {
+            transform: translate(-50%, 0) rotate(-45deg);
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+        
+        .infocard {
+            background-color: rgba(58, 134, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0 2rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .infocard h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+        
+        .infocard p {
+            color: var(--gray-800);
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        
+        .smiles-example {
+            font-family: monospace;
+            background-color: var(--gray-200);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            background-color: var(--gray-800);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-logo-icon {
+            font-size: 1.5rem;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .footer-logo h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .loading-spinner {
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin: 1rem auto;
+            animation: spin 1s linear infinite;
+        }
+
+        .dashboard {
+            margin-top: 2rem;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .prediction-results {
+            margin-bottom: 2rem;
+        }
+
+        .prediction-results h3 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .prediction-results ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .prediction-results li {
+            background-color: var(--gray-100);
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+
+        .chart-container {
+            margin-top: 2rem;
+        }
+
+        .chart-container h3 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                flex: 0 0 auto;
+                margin-bottom: 1.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                padding: 1rem 0;
+            }
+            
+            .logo {
+                margin-bottom: 1rem;
+                justify-content: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-links {
+                margin-top: 1rem;
+            }
+            
+            .footer-links a {
+                display: inline-block;
+                margin: 0.5rem;
+            }
+        }
+        
+        /* Animation for page transitions */
+        .fadeIn {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <h1>DrugSafe</h1> <!-- Updated title -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="sidebar" data-aos="fade-right" data-aos-duration="800">
+                <h3>Analysis Tools</h3>
+                <form method="POST">
+                    <input type="hidden" name="page" value="single_drug">
+                    <button type="submit" class="nav-btn {% if request.form.get('page') == 'single_drug' %}active{% endif %}">
+                        <i class="fas fa-capsule"></i> <!-- Icon for Single Drug Analysis -->
+                        Single Drug Analysis
+                    </button>
+                </form>
+                <form method="POST">
+                    <input type="hidden" name="page" value="drug_interaction">
+                    <button type="submit" class="nav-btn {% if request.form.get('page') == 'drug_interaction' %}active{% endif %}">
+                        <i class="fas fa-flask-vial"></i>
+                        Drug-Drug Interaction
+                    </button>
+                </form>
+                
+                <div class="infocard" data-aos="fade-up" data-aos-delay="300">
+                    <h4><i class="fas fa-info-circle"></i> What is SMILES?</h4>
+                    <p>SMILES (Simplified Molecular Input Line Entry System) is a specification for describing the structure of chemical molecules using short text strings.</p>
+                </div>
+            </div>
+
+            <div class="content-area" data-aos="fade-up" data-aos-duration="800">
+                <!-- Flash messages will only appear after form submission -->
+                {% if request.method == "POST" %}
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="messages">
+                                {% for category, message in messages %}
+                                    {% if message != "Please enter a valid SMILES structure." and message != "Please enter valid SMILES structures for both drugs." %}
+                                        <div class="{{ category }}">
+                                            {% if category == 'success' %}
+                                                <i class="fas fa-check-circle"></i>
+                                            {% elif category == 'warning' %}
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            {% elif category == 'error' %}
+                                                <i class="fas fa-times-circle"></i>
+                                            {% endif %}
+                                            {{ message }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+
+                {% if not request.form.get("page") or request.form.get("page") == "single_drug" %}
+                    <div class="content-header">
+                        <h2><i class="fas fa-capsule"></i> Single Drug Analysis</h2>
+                        <p>Enter a SMILES structure to predict potential side effects for a single drug compound.</p>
+                    </div>
+
+                    <div class="molecule-container">
+                        <div class="molecule">
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                        </div>
+                    </div>
+
+                    <form method="POST" id="singleDrugForm" onsubmit="showLoading()">
+                        <input type="hidden" name="page" value="single_drug">
+                        <div class="form-group">
+                            <label for="smiles_input"><i class="fas fa-dna"></i> SMILES Structure:</label>
+                            <input type="text" id="smiles_input" name="smiles_input" class="form-control" placeholder="e.g. CC(=O)OC1=CC=CC=C1C(=O)O" required>
+                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-search"></i> Predict Side Effects
+                        </button>
+                    </form>
+
+                {% elif request.form.get("page") == "drug_interaction" %}
+                    <div class="content-header">
+                        <h2><i class="fas fa-flask-vial"></i> Drug-Drug Interaction Analysis</h2>
+                        <p>Enter SMILES structures for two drugs to predict potential interaction effects.</p>
+                    </div>
+
+                    <div class="molecule-container">
+                        <div class="molecule" style="transform: translateX(-30px)">
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                        </div>
+                        <i class="fas fa-plus" style="margin: 0 20px; color: var(--primary); font-size: 1.5rem;"></i>
+                        <div class="molecule" style="transform: translateX(30px)">
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="atom"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                            <div class="bond"></div>
+                        </div>
+                    </div>
+
+                    <form method="POST" id="drugInteractionForm" onsubmit="showLoading()">
+                        <input type="hidden" name="page" value="drug_interaction">
+                        <div class="form-group">
+                            <label for="smiles1"><i class="fas fa-prescription-bottle-alt"></i> Drug 1 SMILES:</label>
+                            <input type="text" id="smiles1" name="smiles1" class="form-control" placeholder="e.g. CC(=O)OC1=CC=CC=C1C(=O)O" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="smiles2"><i class="fas fa-prescription-bottle"></i> Drug 2 SMILES:</label>
+                            <input type="text" id="smiles2" name="smiles2" class="form-control" placeholder="e.g. CC(C)CC1=CC=C(C=C1)C(C)C(=O)O" required>
+                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-vial"></i> Predict Interactions
+                        </button>
+                    </form>
+                    
+                {% endif %}
+                                <!-- Add this section below the form -->
+                {% if prediction_results %}
+                <div class="dashboard" data-aos="fade-up" data-aos-duration="800">
+                    <div class="content-header">
+                        <h2><i class="fas fa-chart-bar"></i> Prediction Dashboard</h2>
+                        <p>Here are the results of your prediction:</p>
+                    </div>
+
+                    <div class="prediction-results">
+                        <h3>Predicted Results:</h3>
+                        <ul>
+                            {% for result in prediction_results %}
+                                <li>{{ result }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Optional: Add a chart or visualization -->
+                    <div class="chart-container">
+                        <h3>Visualization</h3>
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="footer-logo-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <h2>DrugSafe</h2> <!-- Updated title -->
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-home"></i> Home</a>
+                    <a href="#"><i class="fas fa-info-circle"></i> About</a>
+                    <a href="#"><i class="fas fa-book"></i> Documentation</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="loading" id="loadingIndicator">
+        <div class="loading-content">
+            <h3>Analyzing Molecular Structure</h3>
+            <div class="loading-spinner"></div>
+            <p>Please wait while our AI models process your request...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        // Initialize AOS animations
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                once: true
+            });
+            
+            // Add active class to current nav button
+            const currentPage = "{{ request.form.get('page') or 'single_drug' }}";
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.closest('form').querySelector('input[name="page"]').value === currentPage) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        });
+        
+        // Show loading indicator
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'flex';
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+            const predictionResults = {{ prediction_results | tojson | safe }}; // Assuming this contains the side effect names
+
+            // Use the prediction results directly as labels
+            const labels = predictionResults;
+
+            // Replace this with actual data if available, or keep the random data for demonstration
+            const data = predictionResults.map(() => Math.floor(Math.random() * 100));
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels, // Use the side effect names as labels
+                    datasets: [{
+                        label: 'Prediction Results',
+                        data: data,
+                        backgroundColor: 'rgba(58, 134, 255, 0.2)',
+                        borderColor: 'rgba(58, 134, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
