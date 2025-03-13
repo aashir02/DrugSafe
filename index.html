@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap">
     <!-- AOS Animation Library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
     <style>
         :root {
             --primary: #3a86ff;
@@ -630,6 +632,17 @@
     </style>
 </head>
 <body>
+    <!-- User info and logout button -->
+<div class="container">
+    <div class="row">
+        <div class="col text-end mt-2 mb-2">
+            {% if username %}
+                <span>Logged in as: <b>{{ username }}</b></span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger ms-2">Logout</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
     <header>
         <div class="container">
             <div class="header-content">
@@ -773,6 +786,29 @@
                     
                 {% endif %}
                                 <!-- Add this section below the form -->
+                <!-- Add this right after or inside your prediction results section -->
+                {% if prediction_results %}
+                <div class="mt-3">
+                    <form method="POST" action="{{ url_for('download_report') }}">
+                        {% for result in prediction_results %}
+                            <input type="hidden" name="prediction_results[]" value="{{ result }}">
+                        {% endfor %}
+                        
+                        <input type="hidden" name="drug_type" value="{{ page }}">
+                        
+                        {% if page == 'single_drug' %}
+                            <input type="hidden" name="smiles_input" value="{{ request.form.get('smiles_input', '') }}">
+                        {% else %}
+                            <input type="hidden" name="smiles1" value="{{ request.form.get('smiles1', '') }}">
+                            <input type="hidden" name="smiles2" value="{{ request.form.get('smiles2', '') }}">
+                        {% endif %}
+                        
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-download"></i> Download Full Report
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
                 {% if prediction_results %}
                 <div class="dashboard" data-aos="fade-up" data-aos-duration="800">
                     <div class="content-header">
